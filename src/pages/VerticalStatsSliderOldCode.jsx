@@ -13,6 +13,7 @@ export default function VerticalStatsSlider({ stats }) {
     speed: 400,
     slidesToShow: 1, // show one slide at a time
     slidesToScroll: 1, // scroll one slide at a time
+    arrows: true,
     adaptiveHeight: true,
     autoplay: true,
     autoplaySpeed: 3000, // 3 seconds
@@ -27,8 +28,7 @@ export default function VerticalStatsSlider({ stats }) {
   const [active, setActive] = useState(0);
   const [slideHeight, setSlideHeight] = useState(0); // state instead of ref
   const sliderRef = useRef(null);
-  // ensure non-negative when stats has less than 2 items
-  const lengthItems = Math.max(0, stats.length - 2); // 2 visible at once
+  const lengthItems = stats.length - 2; // 2 visible at once
 
   // Measure height of one slide after render
   useEffect(() => {
