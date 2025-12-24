@@ -5,22 +5,8 @@ import { faLock, faCamera } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion";
 
 const AboutSection = ({ data }) => {
-
+  console.log("AboutSection data:", data);  
   if (!data) return null;
-
-  const {
-    title,
-    subHeading,
-    description,
-    image,
-    whatSetsUsApart,
-    highlights
-  } = data;
-
-  console.log(image)
-  console.log(highlights)
-
-
   return (
     <section className="" id="WhatSetsUsApart">
       <div className="container-fluid">
@@ -34,19 +20,19 @@ const AboutSection = ({ data }) => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="md:w-[40%] text-4xl md:text-5xl font-medium leading-tight font-parkinsans">
-                {title}
+              <h2 className="md:w-[50%] text-4xl md:text-5xl font-medium leading-tight font-parkinsans">
+               {data.title}
+               
+               
               </h2>
-
               <div className="md:w-[35%] ms-auto">
                 <h3 className="text-xl md:text-2xl font-manrope">
-                  {subHeading}
+               {data.subHeading}
 
                 </h3>
-                <p className="mt-2 font-manrope">
-                  {description}
+                <p className=" mt-2 font-manrope">
+             {data.description}
                 </p>
-
               </div>
             </motion.div>
 
@@ -59,7 +45,7 @@ const AboutSection = ({ data }) => {
                 viewport={{ once: true }}
               >
                 <img
-                  src={image.url}
+                  src={data.image["url"]}
                   alt="Expert"
                   className="rounded-2xl w-full max-w-xl object-cover"
                 />
@@ -74,10 +60,10 @@ const AboutSection = ({ data }) => {
               >
                 <div>
                   <h3 className="mb-4 text-h3 font-manrope">
-                    {whatSetsUsApart.heading}
+                   {data.whatSetsUsApart["heading"]}
                   </h3>
                   <p className=" text-xl max-w-[500px] mt-2 ">
-                    {whatSetsUsApart.description}
+                    {data.whatSetsUsApart["description"]}
                   </p>
                 </div>
 
@@ -94,13 +80,10 @@ const AboutSection = ({ data }) => {
                   }}
                   viewport={{ once: true }}
                 >
-                  {highlights && highlights.length > 0 && highlights.map((card, index) => (
+                  {data.highlights.map((card, index) => (
                     <div key={index} className="flex items-start flex-col sm:flex-row md:flex-col lg:flex-row gap-4 justify-between mb-4 md:mb-8">
                       <div className="">
-                        {/* Agar icon URL hai toh show karo */}
-                        {card.icon && (
-                          <img src={card.icon} alt={card.title} className="w-full max-w-[50px] h-auto" />
-                        )}
+                        <img src={card.icon} alt={card.title} className="w-full max-w-[50px] h-auto" />
                       </div>
                       <h4 className="font-medium font-manrope text-black text-p sm:w-[28%] md:w-full lg:w-[25%]">
                         {card.title}
@@ -108,10 +91,8 @@ const AboutSection = ({ data }) => {
                       <p className="font-manrope text-black sm:w-[40%] md:w-full lg:w-[60%]">
                         {card.description}
                       </p>
-                    </div>
-                  ))}
+                  </div>))}
                 </motion.div>
-
               </motion.div>
             </div>
           </div>

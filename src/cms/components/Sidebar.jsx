@@ -1,21 +1,34 @@
 import React, { useState } from "react";
-import { 
-  HiOutlineHome, 
-  HiOutlineUserGroup, 
-  HiOutlineBriefcase, 
-  HiOutlinePhone, 
-  HiOutlineChevronDown, 
-  HiOutlinePhotograph 
+import {
+  HiOutlineHome,
+  HiOutlineUserGroup,
+  HiOutlineBriefcase,
+  HiOutlinePhone,
+  HiOutlineChevronDown,
+  HiOutlinePhotograph,
+  HiOutlineDocumentText,
+  HiOutlineVideoCamera,
+  HiOutlineBookOpen,
+  HiOutlinePencilAlt,
+  HiOutlineShare,
+  HiOutlineTerminal,
+  HiOutlineShieldCheck,
 } from "react-icons/hi";
 
-const Sidebar = ({ cmsData, activePage, activeSectionId, onPageChange, onSectionChange }) => {
+const Sidebar = ({
+  cmsData,
+  activePage,
+  activeSectionId,
+  onPageChange,
+  onSectionChange,
+}) => {
   // Track which page menus are "expanded"
   const [expandedPages, setExpandedPages] = useState({ home: true });
 
   const toggleExpand = (pageKey) => {
-    setExpandedPages(prev => ({
+    setExpandedPages((prev) => ({
       ...prev,
-      [pageKey]: !prev[pageKey]
+      [pageKey]: !prev[pageKey],
     }));
   };
 
@@ -25,6 +38,18 @@ const Sidebar = ({ cmsData, activePage, activeSectionId, onPageChange, onSection
     { id: "about", label: "About", icon: <HiOutlineUserGroup /> },
     { id: "services", label: "Services", icon: <HiOutlineBriefcase /> },
     { id: "contact", label: "Contact Us", icon: <HiOutlinePhone /> },
+    { id: "management", label: "TVG Management", icon: <HiOutlineBriefcase /> },
+    {
+      id: "reporting",
+      label: "TVG Reporting",
+      icon: <HiOutlineDocumentText />,
+    },
+    { id: "stream", label: "TVG Stream", icon: <HiOutlineVideoCamera /> },
+    { id: "books", label: "TVG Books", icon: <HiOutlineBookOpen /> },
+    { id: "creative", label: "TVG Creative", icon: <HiOutlinePencilAlt /> },
+    { id: "connect", label: "TVG Connect", icon: <HiOutlineShare /> },
+    { id: "command", label: "TVG Command", icon: <HiOutlineTerminal /> },
+    { id: "verify", label: "TVG Verify", icon: <HiOutlineShieldCheck /> },
   ];
 
   return (
@@ -44,23 +69,34 @@ const Sidebar = ({ cmsData, activePage, activeSectionId, onPageChange, onSection
           return (
             <div key={page.id} className="space-y-1">
               {/* Page Parent Button */}
-              <button 
+              <button
                 onClick={() => {
                   onPageChange(page.id);
                   toggleExpand(page.id);
                   // Automatically select first section of page if not already on that page
-                  if (!isPageActive && sections.length > 0) onSectionChange(sections[0].id);
+                  if (!isPageActive && sections.length > 0)
+                    onSectionChange(sections[0].id);
                 }}
                 className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
-                  isPageActive ? "bg-gray-800/60 text-white" : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
+                  isPageActive
+                    ? "bg-gray-800/60 text-white"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={isPageActive ? "text-cyan-400" : "text-gray-500"}>{page.icon}</span>
+                  <span
+                    className={isPageActive ? "text-cyan-400" : "text-gray-500"}
+                  >
+                    {page.icon}
+                  </span>
                   <span className="font-medium">{page.label}</span>
                 </div>
                 {sections.length > 0 && (
-                  <HiOutlineChevronDown className={`transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`} />
+                  <HiOutlineChevronDown
+                    className={`transition-transform duration-300 ${
+                      isExpanded ? "rotate-180" : ""
+                    }`}
+                  />
                 )}
               </button>
 
@@ -80,7 +116,7 @@ const Sidebar = ({ cmsData, activePage, activeSectionId, onPageChange, onSection
                           : "text-gray-600 hover:text-gray-300"
                       }`}
                     >
-                      {section.id.replace(/-/g, ' ')}
+                      {section.id.replace(/-/g, " ")}
                     </button>
                   ))}
                 </div>

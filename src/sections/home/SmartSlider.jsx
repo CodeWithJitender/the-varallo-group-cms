@@ -4,59 +4,60 @@ import Slider from "react-slick";
 import Arrow from "../../components/Arrow";
 import Button from "../../components/Button";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { link } from "framer-motion/client";
 
-// const smartData = [
-//   {
-//     title: "TVG Management",
-//     desc: "Comprehensive agency management support focused on optimizing your day-to-day operations.",
-//     image: "smart-1.jpg",
-//     link: "/services/tvg-management"
-//   },
-//   {
-//     title: "TVG Reporting",
-//     desc: "Our nationwide network of court reporters and legal videographers is ready to support your firm wherever you need.",
-//     image: "smart-2.jpg",
-//     link: "/services/tvg-reporting"
-//   },
-//   {
-//     title: "TVG Stream",
-//     desc: "Cutting-edge trial presentation and event A/V, with detail-focused on-site support.",
-//     image: "smart-3.jpg",
-//     link: "/services/tvg-stream"
-//   },
-//   {
-//     title: "TVG Books",
-//     desc: "Bookkeeping support services for court reporting and other professional industries.",
-//     image: "smart-4.jpg",
-//     link: "/services/tvg-books"
-//   },
-//   // {
-//   //   title: "TVG Creative",
-//   //   desc: "Marketing materials, branding and identity kits for legal and B2B sectors.",
-//   //   image: "smart-5.jpg",
-//   //   link: "/services/tvg-creative"
-//   // },
-//   {
-//     title: "TVG Connect",
-//     desc: "Focused management services built for professional associations and organizations.",
-//     image: "smart-6.jpg",
-//     link: "/services/tvg-connect"
-//   },
-//   // {
-//   //   title: "TVG Command",
-//   //   desc: "Empowering you with sales support and practical training on leading legal tech platforms.",
-//   //   image: "smart-7.jpg",
-//   //   link: "/services/tvg-command"
-//   // },
-//   {
-//     title: "TVG Verify",
-//     desc: "Let us ensure your hiring is secure with reliable background screening and compliance checks, powered by SmartHire.",
-//     image: "smart-8.jpg",
-//     link: "/services/tvg-verify"
-//   },
+const smartData = [
+  {
+    title: "TVG Management",
+    desc: "Comprehensive agency management support focused on optimizing your day-to-day operations.",
+    image: "smart-1.jpg",
+    link: "/services/tvg-management"
+  },
+  {
+    title: "TVG Reporting",
+    desc: "Our nationwide network of court reporters and legal videographers is ready to support your firm wherever you need.",
+    image: "smart-2.jpg",
+    link: "/services/tvg-reporting"
+  },
+  {
+    title: "TVG Stream",
+    desc: "Cutting-edge trial presentation and event A/V, with detail-focused on-site support.",
+    image: "smart-3.jpg",
+    link: "/services/tvg-stream"
+  },
+  {
+    title: "TVG Books",
+    desc: "Bookkeeping support services for court reporting and other professional industries.",
+    image: "smart-4.jpg",
+    link: "/services/tvg-books"
+  },
+  // {
+  //   title: "TVG Creative",
+  //   desc: "Marketing materials, branding and identity kits for legal and B2B sectors.",
+  //   image: "smart-5.jpg",
+  //   link: "/services/tvg-creative"
+  // },
+  {
+    title: "TVG Connect",
+    desc: "Focused management services built for professional associations and organizations.",
+    image: "smart-6.jpg",
+    link: "/services/tvg-connect"
+  },
+  // {
+  //   title: "TVG Command",
+  //   desc: "Empowering you with sales support and practical training on leading legal tech platforms.",
+  //   image: "smart-7.jpg",
+  //   link: "/services/tvg-command"
+  // },
+  {
+    title: "TVG Verify",
+    desc: "Let us ensure your hiring is secure with reliable background screening and compliance checks, powered by SmartHire.",
+    image: "smart-8.jpg",
+    link: "/services/tvg-verify"
+  },
   
-// ];
+];
 
 function NextArrow(props) {
   const { onClick } = props;
@@ -82,21 +83,11 @@ function PrevArrow(props) {
   );
 }
 
-export default function SmartSlider({ data }) {
-  const useLo = useNavigate();
-
-
-  if (!data) return null;
-
-  const {
-    title,
-    button,
-    paragraph1 = [],
-    paragraph2 = [],
-    cards = [],
-  } = data;
-    console.log(cards)
-  const settings = {  
+export default function SmartSlider({data}) {
+    if (!data) return null;
+    console.log("SmartSlider data:", data);
+  const useLo = useNavigate()
+  const settings = {
     dots: false,
     infinite: true,
     speed: 600,
@@ -154,19 +145,17 @@ export default function SmartSlider({ data }) {
               viewport={{ once: true }}
             >
               <h2 className="text-h2 font-medium leading-tight mb-4">
-               {title}
+                {data.title}
               </h2>
 
-               {button && (
               <div className="flex items-center gap-2 mb-8">
                 <Button
-                   text={button.label}
+                  text="Let's Get Started"
                   color={"text-white"}
                   arrowClass={"sd"}
-                  onClick={() => navigate(button.link)}
+                  
                 />
               </div>
-               )}
             </motion.div>
 
             <motion.p
@@ -176,7 +165,7 @@ export default function SmartSlider({ data }) {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-            {paragraph1}
+           Our team is the heart of The Varallo Group. They bring dedication, professionalism, and integrity to everything they do. I’m constantly inspired by their commitment to our clients and to each other. It's a privilege to work alongside such talented people who take real pride in delivering excellence every single day.
             </motion.p>
             <motion.p
               className="text-white font-manrope text-xl lg:max-w-[500px]"
@@ -185,7 +174,7 @@ export default function SmartSlider({ data }) {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-            {paragraph2}
+             At The Varallo Group, our services are built to simplify, strengthen, and scale your operations. Whether you're a court reporting firm, a professional organization, or an individual, our expertise meets your needs right where you are and right when you need it.
             </motion.p>
           </motion.div>
 
@@ -198,7 +187,7 @@ export default function SmartSlider({ data }) {
           >
             <div className="relative">
               <Slider {...settings}>
-                {cards.map((item, i) => (
+                {smartData.map((item, i) => (
                   <div key={i}  className="px-4">
                     <motion.div
                       className="relative rounded-xl overflow-hidden cursor-pointer"
@@ -219,7 +208,7 @@ export default function SmartSlider({ data }) {
                             {item.title}
                           </h4>
                           <p className="font-medium text-base leading-6 text-white">
-                            {item.description}
+                            {item.desc}
                           </p>
                         </div>
                       </div>

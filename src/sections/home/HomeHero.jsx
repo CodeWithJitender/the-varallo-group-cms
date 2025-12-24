@@ -7,15 +7,10 @@ import Hero from "../../components/Hero";
 import { Link } from "react-router-dom";
 // import heroImage from "../assets/hero-image.jpg"; // Replace with your actual image
 
-const HomeHero = ({data}) => {
-
-  if(!data) return null;
-
-  const { heading, subHeading, description, button, image } = data;
-  console.log(image)
-
+const HomeHero = ({ data }) => {
+  console.log("HomeHero data:", data);  
+  if (!data) return null;
   return (
-
     <Hero>
       <div className="mx-auto px-4  grid lg:grid-cols-2 items-center">
         {/* Text Content */}
@@ -26,8 +21,11 @@ const HomeHero = ({data}) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
           >
-             <div className="mb-5 uppercase">{heading} </div>
-             <div className="">{subHeading}</div>
+             <div className="mb-5 uppercase">
+              {data.heading}
+              
+               </div>
+             <div className="">{data.subHeading}</div>
           </motion.h1>
 
           <motion.p
@@ -36,7 +34,7 @@ const HomeHero = ({data}) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-       {description}
+       {data.description}
           </motion.p>
 
           <motion.div
@@ -74,7 +72,7 @@ const HomeHero = ({data}) => {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ type: "tween", duration: 1.5 }} // Increased duration
-              src={image.url} // Replace with your actual image path
+              src={data.image["url"]} // Replace with your actual image path
               alt="Professional"
               className="w-full  "
             />

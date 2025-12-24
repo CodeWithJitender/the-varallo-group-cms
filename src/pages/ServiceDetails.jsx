@@ -13,7 +13,7 @@ function ServiceDetails() {
   const data = {
     "tvg-management": {
       hero: {
-        name: "TVG  Management",
+        name: "TVG Management",
         title: "Agency Management Services for Court Reporting Firms",
         pera: [
           "Running a court reporting firm involves more than just capturing the record.  It demands consistent administrative precision, strong client communication, and an eye on the bigger business picture. That’s where we come in. TVG Management acts as your operational backbone, helping you manage the day-to-day so you can focus on what matters most: your clients and your growth. Whether you're scaling up, facing staffing challenges, or need support during high-demand periods, our experienced team steps in.  We bring reliability, consistency, and confidence to your agency.",
@@ -210,18 +210,6 @@ function ServiceDetails() {
           },
         ],
         tagsRight: [
-          // {
-          //   icon: "/fruit-citrus.png",
-          //   text: "File organization & case tracking",
-          // },
-          // {
-          //   icon: "/fruit-citrus.png",
-          //   text: "Deadline reminders & follow-ups",
-          // },
-          // {
-          //   icon: "/fruit-citrus.png",
-          //   text: "Proofing & transcript finalization",
-          // },
            {
             icon: "/fruit-citrus.png",
             text: "In-Person & Remote Coverage",

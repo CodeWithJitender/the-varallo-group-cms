@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 export default function VerticalStatsSlider({ stats }) {
-  console.log(stats);
+  // console.log(stats);
   const settings = {
     dots: false,
     arrows: true,

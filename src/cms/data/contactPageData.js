@@ -31,19 +31,15 @@ export const contactPageData = [
           icon: "example.png",
           title: "Office Address:",
           text: "34 Grafton Street, Suite 2\nMillbury, MA 01527",
+          link: "tel:5087539282",
         },
         {
           icon: "example.png",
           title: "Call us:",
           text: "508.753.9282",
+          link: "tel:5087539282",
         },
-        {
-          icon: "example.png",
-          title: "People First",
-          text: "We are dedicated to building long-term relationships through exceptional client service and support.",
-          cta_text: null,
-          cta_link: null,
-        },
+     
       ],
     },
   },

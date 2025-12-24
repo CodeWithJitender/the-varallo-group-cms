@@ -7,6 +7,12 @@ import {homePageData} from "../data/homePageData";
 import {aboutPageData} from "../data/aboutPageData"; 
 import {servicePageData} from "../data/servicePageData";
 import {contactPageData} from "../data/contactPageData";
+import {tvgManagementPageData} from "../data/tvgManagementPageData";
+import { tvgReportingPageData } from "../data/tvgReportingPageData";
+import { tvgStreamPageData } from "../data/tvgStreamPageData";
+import { tvgBooksPageData } from "../data/tvgBooksPageData";
+import { tvgCreativePageData } from "../data/tvgCreativePageData";
+import { tvgConnectPageData } from "../data/tvgConnectPageData";
 
 const Dashboard = () => {
   // 1. Centralized state for all CMS pages
@@ -14,7 +20,14 @@ const Dashboard = () => {
     home: homePageData,
     about: aboutPageData,    // Replace with aboutPageData when ready
     services: servicePageData, // Replace with servicesPageData when ready
-    contact: contactPageData   
+    contact: contactPageData,
+    management: tvgManagementPageData,
+    reporting: tvgReportingPageData,
+    stream: tvgStreamPageData,
+    books: tvgBooksPageData,
+    creative: tvgCreativePageData,
+    connect: tvgConnectPageData,
+    verify: tvgManagementPageData,
   });
 
   const [activePage, setActivePage] = useState("home");
@@ -48,7 +61,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#020609] text-white p-6 gap-6 overflow-hidden font-manrope">
+    <div className="flex hero h-screen  text-white p-6 gap-6 overflow-hidden font-manrope">
       {/* SIDEBAR: 
          - Pass full cmsData so it knows which pages have sections
          - onPageChange: Switches the main page (Home, About, etc.)

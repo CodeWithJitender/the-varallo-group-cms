@@ -7,7 +7,7 @@ const Story = () => {
       year: "2017",
       title: "Our Legacy",
       para: "Founded in 2001 with a clear mission to deliver exceptional court reporting and legal support services rooted in professionalism, reliability, and personal attention, The Varallo Group builds on a family legacy dating back to 1937. For nearly 100 years, the Varallo name has been synonymous with excellence in the field.",
-      img: "/our-legacy.jpg",
+      img: "./our-legacy.jpg",
     },
     {
       year: "2018",

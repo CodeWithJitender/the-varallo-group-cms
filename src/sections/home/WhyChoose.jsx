@@ -6,16 +6,30 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import VerticalStatsSlider from "../../pages/VerticalStatsSlider";
 
+const stats = [
+  {
+    title: "500+",
+    description:
+      "Court reporting firms served",
+  },
+  {
+    title: "40K+",
+    description:
+      "Attorneys assisted by our team",
+  },
+  {
+    title: "24+",
+    description:
+      "Years in business",
+  },
+  {
+    title: "2.5M+",
+    description:
+      "Depositions Handled",
+  },
+];
 
-
-const WhyChoose = ({data}) => {
-  
-     if (!data) return null;
-
-  // Destructure all data from backend
-  const { heading, description, image, cards = [], stats = [] } = data;
-
-
+const HeroSection = () => {
   const settings = {
     dots: true,
     infinite: true,
@@ -40,7 +54,7 @@ const WhyChoose = ({data}) => {
           viewport={{ once: true }}
         >
           <h1 className="text-h2 font-parkinsans font-medium">
-           {heading}
+           Experience That Performs. <br /> Support You Deserve.
           </h1>
           <motion.p
             className=" mt-6 lg:max-w-[40%] font-manrope text-base"
@@ -49,7 +63,8 @@ const WhyChoose = ({data}) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-          {description}
+          For court reporting firms that value reliability, accuracy, and confidentiality, our
+team delivers more than just services; we deliver peace of mind.
 
           </motion.p>
         </motion.div>
@@ -63,11 +78,7 @@ const WhyChoose = ({data}) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <img 
-              src={image?.url || "./why-choose.png"} 
-              alt={image?.alt || "hero"} 
-              className="w-full" 
-            />
+            <img src="./why-choose.png" alt="hero" className="w-full" />
           </motion.div>
 
           <motion.div
@@ -77,48 +88,42 @@ const WhyChoose = ({data}) => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            {/* Dynamic Cards */}
-            {cards && cards.length > 0 && (
-              <motion.div
-                className="flex gap-4 mt-10 md:mt-0"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true }}
-              >
-                {cards.map((card, index) => (
-                  <div 
-                    key={index}
-                    className="rounded-xl p-4 text-white text-sm font-medium bg-btn flex flex-col justify-between"
-                  >
-                    <p className="font-manrope text-xl leading-6 md:leading-8">
-                      {card.text}
-                    </p>
-                    {card.learnMore && (
-                      <Link 
-                        to={card.learnMore.url} 
-                        className="text-base mt-5 font-manrope leading-8"
-                      >
-                        {card.learnMore.label}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </motion.div>
-            )}
+            {/* Buttons */}
+            <motion.div
+              className="flex gap-4 mt-10 md:mt-0"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <div className="rounded-xl p-4 text-white text-sm font-medium bg-btn flex flex-col justify-between">
+                <p className="font-manrope text-xl leading-6 md:leading-8">
+                Decades of expertise, led by Nancy Varallo.  Teacher.  Mentor.  Industry Leader.
+                </p>
+                <Link to={"/services"} className="text-base mt-5 font-manrope leading-8">
+                  Learn More
+                </Link>
+              </div>
+              <div className="rounded-xl p-4 text-white text-sm font-medium bg-btn flex flex-col justify-between">
+                <p className="font-manrope text-xl leading-6 md:leading-8">
+                 Precision in every word. Because in law, details matter.
+                </p>
+                <Link to={"/services"} className="text-base mt-5 font-manrope leading-8">
+                  Learn More
+                </Link>
+              </div>
+            </motion.div>
 
-            {/* Dynamic Vertical Stats Slider */}
-            {stats && stats.length > 0 && (
-              <motion.div
-                className="vertical-slider mt-10 max-h-[165px] md:max-h-auto overflow-hidden"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                viewport={{ once: true }}
-              >
-                <VerticalStatsSlider stats={stats} />
-              </motion.div>
-            )}
+            {/* Vertical Slider */}
+            <motion.div
+              className="vertical-slider mt-10 max-h-[165px] md:max-h-auto overflow-hidden"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <VerticalStatsSlider stats={stats} />
+            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -126,4 +131,4 @@ const WhyChoose = ({data}) => {
   );
 };
 
-export default WhyChoose;
+export default HeroSection;

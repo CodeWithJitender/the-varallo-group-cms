@@ -115,6 +115,7 @@ const DynamicEditor = ({ section, onSave }) => {
                 ${isEditing ? 'border-cyan-900/50 cursor-pointer hover:border-cyan-400' : 'border-gray-800'}`}
             >
               <img src={value} alt="prev" className="w-full h-full object-cover opacity-60 group-hover:opacity-40" />
+              {console.log(value)}
               {isEditing && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                   <HiOutlineUpload className="text-cyan-400 text-2xl" />
