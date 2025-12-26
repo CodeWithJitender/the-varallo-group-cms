@@ -1,139 +1,81 @@
-import React, { useState } from "react";
-import {
-  HiOutlineHome,
-  HiOutlineUserGroup,
-  HiOutlineBriefcase,
-  HiOutlinePhone,
-  HiOutlineChevronDown,
-  HiOutlinePhotograph,
-  HiOutlineDocumentText,
-  HiOutlineVideoCamera,
-  HiOutlineBookOpen,
-  HiOutlinePencilAlt,
-  HiOutlineShare,
-  HiOutlineTerminal,
-  HiOutlineShieldCheck,
-} from "react-icons/hi";
+import React, { useState, useEffect } from "react";
+import { HiChevronDown, HiChevronRight, HiOutlineHome, HiOutlineBriefcase, HiOutlineMail, HiOutlineViewGrid } from "react-icons/hi";
 
-const Sidebar = ({
-  cmsData,
-  activePage,
-  activeSectionId,
-  onPageChange,
-  onSectionChange,
-}) => {
-  // Track which page menus are "expanded"
-  const [expandedPages, setExpandedPages] = useState({ home: true });
+const Sidebar = ({ cmsData, activePage, activeSectionId, onPageChange, onSectionChange }) => {
+  // Initialize open state from localStorage or open the current active page
+  const [openMenus, setOpenMenus] = useState(() => {
+    const saved = localStorage.getItem("openMenus");
+    return saved ? JSON.parse(saved) : { [activePage]: true };
+  });
 
-  const toggleExpand = (pageKey) => {
-    setExpandedPages((prev) => ({
-      ...prev,
-      [pageKey]: !prev[pageKey],
-    }));
+  useEffect(() => {
+    localStorage.setItem("openMenus", JSON.stringify(openMenus));
+  }, [openMenus]);
+
+  // Ensure the current active page's menu is open if it's not already
+  useEffect(() => {
+    if (activePage && !openMenus[activePage]) {
+      setOpenMenus(prev => ({ ...prev, [activePage]: true }));
+    }
+  }, [activePage]);
+
+  const toggleMenu = (page) => {
+    setOpenMenus(prev => ({ ...prev, [page]: !prev[page] }));
+    onPageChange(page);
   };
 
-  // Define your main navigation items
-  const navItems = [
-    { id: "home", label: "Homepage", icon: <HiOutlineHome /> },
-    { id: "about", label: "About", icon: <HiOutlineUserGroup /> },
-    { id: "services", label: "Services", icon: <HiOutlineBriefcase /> },
-    { id: "contact", label: "Contact Us", icon: <HiOutlinePhone /> },
-    { id: "management", label: "TVG Management", icon: <HiOutlineBriefcase /> },
-    {
-      id: "reporting",
-      label: "TVG Reporting",
-      icon: <HiOutlineDocumentText />,
-    },
-    { id: "stream", label: "TVG Stream", icon: <HiOutlineVideoCamera /> },
-    { id: "books", label: "TVG Books", icon: <HiOutlineBookOpen /> },
-    { id: "creative", label: "TVG Creative", icon: <HiOutlinePencilAlt /> },
-    { id: "connect", label: "TVG Connect", icon: <HiOutlineShare /> },
-    { id: "command", label: "TVG Command", icon: <HiOutlineTerminal /> },
-    { id: "verify", label: "TVG Verify", icon: <HiOutlineShieldCheck /> },
-  ];
+  const renderPageLink = (slug, label, Icon) => {
+    const sections = cmsData[slug] || [];
+    const isOpen = openMenus[slug];
+
+    return (
+      <div key={slug} className="mb-2">
+        <button 
+          onClick={() => toggleMenu(slug)}
+          className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${activePage === slug ? "bg-cyan-500/10 text-cyan-400" : "hover:bg-white/5 text-gray-400"}`}
+        >
+          <div className="flex items-center gap-3">
+            <Icon className="text-xl" />
+            <span className="text-sm font-bold uppercase tracking-widest">{label}</span>
+          </div>
+          {sections.length > 0 && (isOpen ? <HiChevronDown /> : <HiChevronRight />)}
+        </button>
+
+        {isOpen && sections.length > 0 && (
+          <div className="ml-9 mt-2 flex flex-col gap-1 border-l border-gray-800">
+            {sections.map(section => (
+              <button
+                key={section.id}
+                onClick={() => { onPageChange(slug); onSectionChange(section.id); }}
+                className={`text-left px-4 py-2 text-xs font-medium transition-all ${activeSectionId === section.id && activePage === slug ? "text-cyan-400 border-l-2 border-cyan-400 -ml-[2px]" : "text-gray-500 hover:text-white"}`}
+              >
+                {section.id.charAt(0).toUpperCase() + section.id.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="w-80 bg-[#0a0f14] rounded-[30px] border border-gray-800 p-6 flex flex-col h-full sticky top-0 font-manrope">
-      {/* Branding */}
-      <div className="flex items-center gap-3 mb-10 px-2 font-bold tracking-tighter text-lg">
-        <div className="w-6 h-6 bg-cyan-400 rounded-sm"></div>
-        THE VARALLO GROUP
-      </div>
-
-      <nav className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
-        {navItems.map((page) => {
-          const sections = cmsData[page.id] || [];
-          const isExpanded = expandedPages[page.id];
-          const isPageActive = activePage === page.id;
-
-          return (
-            <div key={page.id} className="space-y-1">
-              {/* Page Parent Button */}
-              <button
-                onClick={() => {
-                  onPageChange(page.id);
-                  toggleExpand(page.id);
-                  // Automatically select first section of page if not already on that page
-                  if (!isPageActive && sections.length > 0)
-                    onSectionChange(sections[0].id);
-                }}
-                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
-                  isPageActive
-                    ? "bg-gray-800/60 text-white"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={isPageActive ? "text-cyan-400" : "text-gray-500"}
-                  >
-                    {page.icon}
-                  </span>
-                  <span className="font-medium">{page.label}</span>
-                </div>
-                {sections.length > 0 && (
-                  <HiOutlineChevronDown
-                    className={`transition-transform duration-300 ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
-                  />
-                )}
-              </button>
-
-              {/* Dynamic Section Sub-menu */}
-              {isExpanded && sections.length > 0 && (
-                <div className="ml-5 border-l border-gray-800 space-y-1 mt-1 animate-fadeIn">
-                  {sections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => {
-                        onPageChange(page.id);
-                        onSectionChange(section.id);
-                      }}
-                      className={`block w-full text-left px-6 py-2 rounded-lg text-xs font-medium transition-all capitalize ${
-                        activeSectionId === section.id && isPageActive
-                          ? "text-cyan-400 bg-cyan-400/5"
-                          : "text-gray-600 hover:text-gray-300"
-                      }`}
-                    >
-                      {section.id.replace(/-/g, " ")}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </nav>
-
-      {/* Static Bottom Buttons */}
-      <div className="pt-6 border-t border-gray-800 mt-6 space-y-3">
-        <button className="flex items-center gap-3 w-full p-4 border border-gray-800 rounded-2xl text-gray-400 hover:bg-gray-800/20 transition-all text-sm">
-          <HiOutlinePhotograph className="text-lg" /> Media Library
-        </button>
+    <div className="w-80 flex flex-col gap-4">
+      <div className="bg-[#0a0f14]/80 border border-gray-800 rounded-[30px] p-6 h-[calc(100vh-48px)] overflow-y-auto custom-scrollbar">
+        <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mb-6 px-2">Main Pages</p>
+        {renderPageLink("home", "Homepage", HiOutlineHome)}
+        {renderPageLink("about", "About Us", HiOutlineBriefcase)}
+        {renderPageLink("services", "Our Services", HiOutlineViewGrid)}
+        {renderPageLink("contact", "Contact Us", HiOutlineMail)}
+        
+        <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] my-6 px-2 border-t border-gray-800 pt-6">TVG Services Sub-Pages</p>
+        {renderPageLink("services/tvg-management", "Management", HiOutlineBriefcase)}
+        {renderPageLink("services/tvg-reporting", "Reporting", HiOutlineBriefcase)}
+        {renderPageLink("services/tvg-stream", "Stream", HiOutlineBriefcase)}
+        {renderPageLink("services/tvg-books", "Books", HiOutlineBriefcase)}
+        {renderPageLink("services/tvg-connect", "Connect", HiOutlineBriefcase)}
+        {renderPageLink("services/tvg-verify", "Verify", HiOutlineBriefcase)}
       </div>
     </div>
   );
 };
-
 export default Sidebar;

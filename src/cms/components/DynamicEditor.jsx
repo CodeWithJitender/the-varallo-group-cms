@@ -1,92 +1,68 @@
 import React, { useState, useEffect, useRef } from "react";
-import { HiOutlineUpload, HiOutlineCheck, HiOutlineX } from "react-icons/hi";
+import { HiOutlineUpload, HiOutlineSave, HiOutlinePencilAlt, HiOutlineX } from "react-icons/hi";
 
 const DynamicEditor = ({ section, onSave }) => {
+  const [formData, setFormData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ ...section });
   const fileInputRef = useRef(null);
-  const activePathRef = useRef(null);
+  const activePathRef = useRef(""); 
 
-  useEffect(() => {
-    setFormData({ ...section });
-    setIsEditing(false);
-  }, [section]);
+  useEffect(() => { if (section) { setFormData(section); setIsEditing(false); } }, [section]);
 
   const updateField = (path, value) => {
-    const keys = path.split('.');
-    let newFormData = JSON.parse(JSON.stringify(formData));
-    let current = newFormData;
-
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
-    }
-    current[keys[keys.length - 1]] = value;
-    setFormData(newFormData);
+    setFormData(prev => {
+      const newData = JSON.parse(JSON.stringify(prev));
+      const keys = path.split(".");
+      let current = newData;
+      for (let i = 0; i < keys.length - 1; i++) current = current[keys[i]];
+      current[keys[keys.length - 1]] = value;
+      return newData;
+    });
   };
 
-  const handleImageClick = (path) => {
-    if (!isEditing) return;
-    activePathRef.current = path;
-    fileInputRef.current.click();
-  };
-
-  const onFileChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-    
-    if (!allowedExtensions.includes(fileExtension)) {
-      alert("Invalid format. JPG, JPEG, PNG, WEBP, or GIF only.");
-      return;
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      updateField(activePathRef.current, previewUrl);
+      setFormData(prev => ({ ...prev, imageFile: file }));
     }
-
-    if (file.size > 1048576) {
-      alert("File is too large. Max size is 1MB.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      updateField(activePathRef.current, reader.result);
-    };
-    reader.readAsDataURL(file);
   };
 
   const renderFields = (data, path = "") => {
     return Object.entries(data).map(([key, value]) => {
       const fieldPath = path ? `${path}.${key}` : key;
-      if (key === "id") return null;
+      if (["id", "imagefile", "dbid", "_id", "__v"].includes(key.toLowerCase())) return null;
 
-      // --- LOGIC FOR MULTI-PARAGRAPH ARRAYS (e.g., descriptions) ---
-      if (Array.isArray(value) && typeof value[0] === 'string') {
+      const lowerKey = key.toLowerCase();
+      const isMediaUrl = typeof value === "string" && (value.includes("cloudinary") || /\.(png|jpg|jpeg|svg|webp)$/.test(value));
+
+      if (typeof value === "string" && !isMediaUrl) {
+        const isLong = value.length > 60;
         return (
-          <div key={fieldPath} className="space-y-4 mb-6">
-            <label className="text-[10px] text-gray-500 font-bold uppercase">{key.replace('_', ' ')} (Multiple Paragraphs)</label>
-            {value.map((para, idx) => (
-              <textarea
-                key={`${fieldPath}.${idx}`}
-                disabled={!isEditing}
-                value={para}
-                onChange={(e) => updateField(`${fieldPath}.${idx}`, e.target.value)}
-                placeholder={`Paragraph ${idx + 1}`}
-                className="w-full bg-transparent border border-gray-800 rounded-xl p-3 text-sm text-gray-300 focus:border-cyan-400 outline-none resize-none h-24 disabled:opacity-50 transition-all"
-              />
-            ))}
+          <div key={fieldPath} className="mb-4 flex flex-col">
+            <label className="text-[10px] text-gray-400 font-bold uppercase mb-1 ml-1">{key}</label>
+            {isLong ? (
+              <textarea disabled={!isEditing} value={value || ""} onChange={(e) => updateField(fieldPath, e.target.value)}
+                className={`bg-transparent border rounded-xl p-3 text-sm min-h-[100px] outline-none transition-all ${isEditing ? "border-cyan-400 text-white" : "border-gray-800 text-gray-500"}`} />
+            ) : (
+              <input disabled={!isEditing} type="text" value={value || ""} onChange={(e) => updateField(fieldPath, e.target.value)}
+                className={`bg-transparent border rounded-full px-4 py-2 text-sm outline-none transition-all ${isEditing ? "border-cyan-400 text-white" : "border-gray-800 text-gray-500"}`} />
+            )}
           </div>
         );
       }
 
-      // --- LOGIC FOR OBJECT ARRAYS (Cards, Blocks, Items) ---
-      if (Array.isArray(value) && typeof value[0] === 'object') {
+      if (Array.isArray(value) && value.length > 0 && typeof value[0] === "string" && 
+          (value[0].includes("cloudinary") || /\.(png|jpg|jpeg|svg|webp)$/.test(value[0]))) {
         return (
-          <div key={fieldPath} className="mt-8 border-t border-gray-800 pt-6">
-            <h4 className="text-cyan-400 text-xs font-bold uppercase mb-4">{key} Section Items</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {value.map((item, idx) => (
-                <div key={idx} className="p-4 bg-gray-900/40 border border-gray-800 rounded-2xl">
-                  {renderFields(item, `${fieldPath}.${idx}`)}
+          <div key={fieldPath} className="mb-6 p-4 bg-black/40 rounded-2xl border border-gray-800">
+            <label className="text-[10px] text-gray-500 font-bold uppercase mb-4 block">{key} Gallery</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {value.map((url, index) => (
+                <div key={index} onClick={() => { if(isEditing) { activePathRef.current = `${fieldPath}.${index}`; fileInputRef.current.click(); } }}
+                  className={`relative h-24 rounded-xl overflow-hidden border-2 border-dashed flex items-center justify-center bg-black ${isEditing ? "border-cyan-500 cursor-pointer" : "border-gray-800"}`}>
+                  <img src={url} alt="Gallery" className="max-w-full max-h-full object-contain p-2" />
                 </div>
               ))}
             </div>
@@ -94,90 +70,44 @@ const DynamicEditor = ({ section, onSave }) => {
         );
       }
 
-      // Handle Nested Objects
-      if (typeof value === 'object' && value !== null) {
+      if ((value && value.url) || isMediaUrl) {
+        const mediaUrl = value.url ? (typeof value.url === "string" ? value.url : value.url.url) : value;
+        const isIcon = lowerKey.includes("icon");
         return (
-          <div key={fieldPath} className="p-4 border border-gray-800 rounded-2xl my-4 bg-gray-800/10">
-            <p className="text-[10px] text-gray-500 font-bold uppercase mb-3">{key}</p>
-            {renderFields(value, fieldPath)}
-          </div>
-        );
-      }
-
-      // Handle Image Fields
-      if (key === "image" || key === "icon") {
-        return (
-          <div key={fieldPath} className="mb-6">
-            <label className="text-[10px] text-gray-500 uppercase font-bold">{key}</label>
-            <div 
-              onClick={() => handleImageClick(fieldPath)}
-              className={`relative h-48 w-full bg-black rounded-2xl border-2 border-dashed transition-all mt-1 overflow-hidden group 
-                ${isEditing ? 'border-cyan-900/50 cursor-pointer hover:border-cyan-400' : 'border-gray-800'}`}
-            >
-              <img src={value} alt="prev" className="w-full h-full object-cover opacity-60 group-hover:opacity-40" />
-              {console.log(value)}
-              {isEditing && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                  <HiOutlineUpload className="text-cyan-400 text-2xl" />
-                  <span className="text-[10px] text-gray-400">Click to Change (Max 1MB)</span>
-                </div>
-              )}
+          <div key={fieldPath} className="mb-6 p-4 bg-black/40 rounded-2xl border border-gray-800">
+            <label className="text-[10px] text-gray-500 font-bold uppercase mb-2 block">{key}</label>
+            <div onClick={() => { if(isEditing) { activePathRef.current = value.url ? `${fieldPath}.url` : fieldPath; fileInputRef.current.click(); } }}
+              className={`relative rounded-xl overflow-hidden border-2 border-dashed flex items-center justify-center bg-black ${isIcon ? 'h-24 w-24' : 'h-48 w-full'} ${isEditing ? "border-cyan-500 cursor-pointer" : "border-gray-800"}`}>
+              <img src={mediaUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
             </div>
           </div>
         );
       }
 
-      // Handle Simple Text/CTA fields
-      const isCta = key.includes('cta_');
-      return (
-        <div key={fieldPath} className={`flex flex-col gap-1 mb-4 ${isCta ? 'border-l-2 border-cyan-500/30 pl-3' : ''}`}>
-          <label className="text-[10px] text-gray-500 font-bold uppercase">{key.replace('_', ' ')}</label>
-          {typeof value === "string" && value.length > 70 ? (
-            <textarea
-              disabled={!isEditing}
-              value={value}
-              onChange={(e) => updateField(fieldPath, e.target.value)}
-              className="bg-transparent border border-gray-800 rounded-xl p-3 text-sm text-gray-300 focus:border-cyan-400 outline-none resize-none h-28 disabled:opacity-50"
-            />
-          ) : (
-            <input
-              disabled={!isEditing}
-              type="text"
-              value={value || ""}
-              onChange={(e) => updateField(fieldPath, e.target.value)}
-              className="bg-transparent border border-gray-800 rounded-xl p-3 text-sm text-gray-300 focus:border-cyan-400 outline-none disabled:opacity-50"
-            />
-          )}
-        </div>
-      );
+      if (Array.isArray(value)) return <div key={fieldPath} className="mb-6 border-l border-gray-800 pl-4">{value.map((item, i) => renderFields(item, `${fieldPath}.${i}`))}</div>;
+      if (value && typeof value === "object") return <div key={fieldPath} className="mb-4 border-l border-gray-800/30 pl-4">{renderFields(value, fieldPath)}</div>;
+
+      return null;
     });
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <input type="file" ref={fileInputRef} onChange={onFileChange} className="hidden" accept=".jpg,.jpeg,.png,.webp,.gif" />
-
-      <div className="flex justify-between items-center mb-10">
-        <h2 className="text-2xl font-bold uppercase tracking-tight">{formData.id} Content Management</h2>
+    <div className="flex flex-col h-full font-manrope">
+      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+      <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-6">
+        <h2 className="text-xl font-bold uppercase">Section: <span className="text-cyan-400">{section.id}</span></h2>
         <div className="flex gap-4">
           {!isEditing ? (
-            <button onClick={() => setIsEditing(true)} className="bg-cyan-400 text-black px-10 py-2 rounded-full font-bold hover:bg-cyan-300">Edit</button>
+            <button onClick={() => setIsEditing(true)} className="bg-gray-800 px-6 py-2 rounded-full font-bold transition-all uppercase text-xs">Edit Section</button>
           ) : (
             <>
-              <button onClick={() => { setIsEditing(false); setFormData({...section}); }} className="text-gray-400 hover:text-white flex items-center gap-1">
-                <HiOutlineX /> Cancel
-              </button>
-              <button onClick={() => { onSave(formData); setIsEditing(false); }} className="bg-cyan-400 text-black px-10 py-2 rounded-full font-bold flex items-center gap-2">
-                <HiOutlineCheck /> Save Changes
-              </button>
+              <button onClick={() => { setFormData(section); setIsEditing(false); }} className="text-gray-400 hover:text-white uppercase text-xs font-bold transition-all">Cancel</button>
+              <button onClick={() => onSave(formData)} className="bg-cyan-500 text-black px-8 py-2 rounded-full font-bold shadow-lg shadow-cyan-500/20 transition-all uppercase text-xs">Save Changes</button>
             </>
           )}
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto pr-4 scrollbar-hide">
-        <div className="max-w-4xl">{renderFields(formData)}</div>
-      </div>
+      <div className="overflow-y-auto pr-2 custom-scrollbar">{renderFields(formData)}</div>
     </div>
   );
 };

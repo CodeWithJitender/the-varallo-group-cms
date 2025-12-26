@@ -15,7 +15,7 @@ function Home() {
       try {
         const response = await fetch("http://localhost:3000/api/pages/home");
         const jsonData = await response.json();
-        // console.log("Fetched home data:", jsonData);
+        console.log("Fetched home data:", jsonData);
         if (jsonData.data && jsonData.data.sections) {
           setSections(jsonData.data.sections);
         }

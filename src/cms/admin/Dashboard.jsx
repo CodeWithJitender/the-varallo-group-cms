@@ -1,102 +1,124 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import DynamicEditor from "../components/DynamicEditor";
 
-// Import your page data files
-import {homePageData} from "../data/homePageData";
-import {aboutPageData} from "../data/aboutPageData"; 
-import {servicePageData} from "../data/servicePageData";
-import {contactPageData} from "../data/contactPageData";
-import {tvgManagementPageData} from "../data/tvgManagementPageData";
-import { tvgReportingPageData } from "../data/tvgReportingPageData";
-import { tvgStreamPageData } from "../data/tvgStreamPageData";
-import { tvgBooksPageData } from "../data/tvgBooksPageData";
-import { tvgCreativePageData } from "../data/tvgCreativePageData";
-import { tvgConnectPageData } from "../data/tvgConnectPageData";
-
 const Dashboard = () => {
-  // 1. Centralized state for all CMS pages
-  const [cmsData, setCmsData] = useState({
-    home: homePageData,
-    about: aboutPageData,    // Replace with aboutPageData when ready
-    services: servicePageData, // Replace with servicesPageData when ready
-    contact: contactPageData,
-    management: tvgManagementPageData,
-    reporting: tvgReportingPageData,
-    stream: tvgStreamPageData,
-    books: tvgBooksPageData,
-    creative: tvgCreativePageData,
-    connect: tvgConnectPageData,
-    verify: tvgManagementPageData,
-  });
+  // Persistence Logic: Load from localStorage on init
+  const [cmsData, setCmsData] = useState({});
+  const [activePage, setActivePage] = useState(() => localStorage.getItem("activePage") || "home");
+  const [activeId, setActiveId] = useState(() => localStorage.getItem("activeId") || "");
+  const [loading, setLoading] = useState(true);
 
-  const [activePage, setActivePage] = useState("home");
-  const [activeId, setActiveId] = useState("hero");
+  const BASE_URL = "http://localhost:3000/api/pages";
+  const PAGE_PATHS = [
+    "home", "about", "services", "contact",
+    "services/tvg-management", "services/tvg-stream",
+    "services/tvg-books", "services/tvg-connect",
+    "services/tvg-verify", "services/tvg-reporting"
+  ];
 
-  // 2. Derive the specific section data based on selected page and section ID
-  const currentPageSections = cmsData[activePage] || [];
-  const activeSection = currentPageSections.find((s) => s.id === activeId) || currentPageSections[0];
+  // Sync state to localStorage
+  useEffect(() => {
+    localStorage.setItem("activePage", activePage);
+    localStorage.setItem("activeId", activeId);
+  }, [activePage, activeId]);
 
-  // 3. Update state when "Save Changes" is clicked in DynamicEditor
-  const handleUpdateSection = (updatedData) => {
-    setCmsData((prev) => ({
-      ...prev,
-      [activePage]: prev[activePage].map((s) =>
-        s.id === updatedData.id ? updatedData : s
-      ),
-    }));
-    
-    // This is where you would call your backend API
-    console.log(`Database Updated for ${activePage}:`, updatedData);
-  };
-
-  // 4. Handle Page Change from Sidebar
-  const handlePageChange = (pageKey) => {
-    setActivePage(pageKey);
-    // Automatically select the first section of the new page
-    const firstSection = cmsData[pageKey]?.[0]?.id;
-    if (firstSection) {
-      setActiveId(firstSection);
+  const unboxData = (data) => {
+    if (typeof data === "string") {
+      try {
+        const parsed = JSON.parse(data);
+        if (parsed && typeof parsed === "object") return unboxData(parsed);
+      } catch (e) { return data; }
     }
+    if (Array.isArray(data)) {
+      const isMedia = data.length > 0 && typeof data[0] === "string" && 
+                      (data[0].includes("cloudinary") || /\.(png|jpg|jpeg|svg|webp)$/.test(data[0]));
+      if (isMedia) return data; 
+      if (data.length === 1 && typeof data[0] === "string") return data[0];
+      return data.map(unboxData);
+    }
+    if (data !== null && typeof data === "object") {
+      const cleaned = {};
+      for (let [key, value] of Object.entries(data)) {
+        if (["_id", "__v", "dbid", "content", "createdAt", "updatedAt"].includes(key)) continue;
+        cleaned[key] = unboxData(value);
+      }
+      return cleaned;
+    }
+    return data;
   };
+
+  const fetchPageData = async (pageSlug) => {
+    try {
+      const response = await fetch(`${BASE_URL}/${pageSlug}`);
+      const json = await response.json();
+      if (json.data?.sections) {
+        const formatted = json.data.sections.map(s => ({
+          id: s.sectionKey,
+          ...unboxData(s.content)
+        }));
+        setCmsData(prev => ({ ...prev, [pageSlug]: formatted }));
+      }
+    } catch (err) { console.error("Fetch Error:", err); }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all(PAGE_PATHS.map(path => fetchPageData(path)));
+      setLoading(false);
+    };
+    init();
+  }, []);
+
+  const handleUpdateSection = async (updatedData) => {
+    const formData = new FormData();
+    const { id, imageFile, ...content } = updatedData;
+
+    // Send the text content as a string
+    formData.append("content", JSON.stringify(content));
+    
+    // Send the file if it exists (Key must match backend Multer config)
+    if (imageFile) {
+      formData.append("image", imageFile); 
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/sections/${activePage}/${id}`, {
+        method: "PATCH",
+        body: formData, // Browser automatically sets boundary for FormData
+      });
+
+      if (res.ok) {
+        alert("Section updated successfully!");
+        await fetchPageData(activePage); 
+      } else {
+        const err = await res.json();
+        alert(`Save failed: ${err.message}`);
+      }
+    } catch (err) { alert("Network Error"); }
+  };
+
+  const activeSection = (cmsData[activePage] || []).find(s => s.id === activeId);
 
   return (
-    <div className="flex hero h-screen  text-white p-6 gap-6 overflow-hidden font-manrope">
-      {/* SIDEBAR: 
-         - Pass full cmsData so it knows which pages have sections
-         - onPageChange: Switches the main page (Home, About, etc.)
-         - onSectionChange: Switches the specific section (Hero, Section 2, etc.)
-      */}
+    <div className="flex min-h-screen bg-[#05080a] text-white p-6 gap-6 font-manrope">
       <Sidebar 
-        cmsData={cmsData}
-        activePage={activePage}
-        activeSectionId={activeId}
-        onPageChange={handlePageChange}
-        onSectionChange={setActiveId}
+        cmsData={cmsData} activePage={activePage} activeSectionId={activeId}
+        onPageChange={setActivePage} onSectionChange={setActiveId} 
       />
-
       <div className="flex-1 flex flex-col gap-6 overflow-hidden">
-        {/* Header Section */}
-        <div className="flex justify-between items-center px-4">
-          <div>
-            <p className="text-gray-400 text-sm">Welcome back,</p>
-            <h1 className="text-2xl font-bold">John Doe</h1>
-          </div>
-          <button className="px-6 py-2 border border-gray-800 rounded-full hover:bg-white hover:text-black transition-all">
-            Logout
-          </button>
-        </div>
-
-        {/* EDITOR: Rendered dynamically based on current selection */}
-        <div className="flex-1 bg-[#0a0f14]/80 backdrop-blur-xl border border-gray-800 rounded-[40px] p-10 overflow-hidden">
-          {activeSection ? (
-            <DynamicEditor 
-              section={activeSection} 
-              onSave={handleUpdateSection} 
-            />
+        <h1 className="text-2xl font-bold capitalize px-4">
+          Editing: <span className="text-cyan-400">{activePage.split('/').pop().replace(/-/g, ' ')}</span>
+        </h1>
+        <div className="flex-1 bg-[#0a0f14]/80 border border-gray-800 rounded-[40px] p-10 overflow-y-auto custom-scrollbar">
+          {loading && Object.keys(cmsData).length === 0 ? (
+             <div className="flex items-center justify-center h-full text-gray-500 animate-pulse">Syncing APIs...</div>
+          ) : activeSection ? (
+            <DynamicEditor key={`${activePage}-${activeId}`} section={activeSection} onSave={handleUpdateSection} />
           ) : (
-            <div className="h-full flex items-center justify-center text-gray-500 italic">
-              Please select a section to begin editing.
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 border-2 border-dashed border-gray-800 rounded-3xl">
+              <p>Select a section from the sidebar.</p>
             </div>
           )}
         </div>
