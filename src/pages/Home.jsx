@@ -36,11 +36,11 @@ function Home() {
   return (
     <div className="home-page overflow-x-hidden">
       {/* 1. Hero Section */}
-      <HomeHero data={getSectionData("hero")} />
+      {/* <HomeHero data={getSectionData("hero")} /> */}
 
       {/* 2. About/Expertise Section */}
       <div id="our-expertise">
-        <AboutSection data={getSectionData("experience")} />
+        {/* <AboutSection data={getSectionData("experience")} /> */}
       </div>
 
       {/* 3. Smart Support Slider */}

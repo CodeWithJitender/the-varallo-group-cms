@@ -1,7 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const Story = () => {
+const Story = ({ data }) => {
+  if (!data) return null;
+  const { heading, subHeading, blocks } = data;
   const item = [
     {
       year: "2017",
@@ -35,17 +37,18 @@ const Story = () => {
         {/* Heading */}
         <div className="text-center">
           <h2 className="text-h2 font-parkinsans">
-            The Varallo Group’s Journey
+            {heading ? heading : "The Varallo Group’s Journey"}
 
           </h2>
           <p className="mt-4 font-manrope text-xl max-w-4xl mx-auto">
-            A family name, a lifelong commitment to excellence.
+            {subHeading ? subHeading : "A family name, a lifelong commitment to excellence."}
           </p>
         </div>
       
 
       {/* Story Content */}
-      {item.map((story, index) => (
+      {blocks && blocks.map((story, index) => (
+        
         <motion.div
           key={index}
           className="bg-white"
@@ -66,8 +69,8 @@ const Story = () => {
                 variants={fadeInUp}
               >
                 <img
-                  src={story.img}
-                  alt="Story"
+                  src={story.image['url']}
+                  alt={story.image['alt']}
                   className="rounded-2xl w-full"
                 />
               </motion.div>
@@ -84,7 +87,7 @@ const Story = () => {
                   {story.title}
                 </h3>
                 <p className="font-manrope  text-base md:text-lg lg:text-xl">
-                  {story.para}
+                  {story.description}
                 </p>
               </motion.div>
             </div>

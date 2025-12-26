@@ -2,7 +2,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaLinkedin, FaFacebook } from "react-icons/fa";
 
-function OurFounder() {
+function OurFounder({ data }) {
+  if (!data) return null;
+  const { name, para1, para2, profile, quote } = data;
   return (
     <section className="bg-btn relative md:py-32">
       <div className="image-bottom absolute left-0  top-0 w-32 md:w-60 h-32 md:h-60">
@@ -17,11 +19,7 @@ function OurFounder() {
             <img src="q-left.png" className="w-10" alt="" />
           </span>
           <p className="md:mb-20  text-p text-white">
-            Our team is the heart of The Varallo Group. They bring dedication,
-            professionalism, and integrity to everything they do. I’m constantly
-            inspired by their commitment to our clients and to each other. It's
-            a privilege to work alongside such talented people who take real
-            pride in delivering excellence every single day. <br />
+            {quote? quote.text : `Our team is the heart of The Varallo Group. They bring dedication, professionalism, and integrity to everything they do. I’m constantly inspired by their commitment to our clients and to each other. It's a privilege to work alongside such talented people who take real pride in delivering excellence every single day.`} <br />
             {/* <span><i> — Nancy Varallo, Founder & Executive Director</i></span> */}
           </p>
 
@@ -40,8 +38,8 @@ function OurFounder() {
             className="flex  md:items-start w-full flex-col-reverse lg:flex-row md:w-1/2 items-stretch text-white relative p-5"
           >
             <div className="flex flex-col h-full items-stretch text-center gap-4 lg:justify-between  relative z-30">
-              <h2 className="text-h2 font-parkinsans leading-tight text-center md:text-start">
-                Nancy <br className="lg:block hidden" /> Varallo
+              <h2 className="text-h2 font-parkinsans leading-tight text-center md:text-start sm:max-w-[300px]">
+                {name ? name : `Nancy <br className="lg:block hidden" /> Varallo`}
               </h2>
               {/* Social Icons */}
               <div className="flex justify-center md:justify-start gap-4">
@@ -84,21 +82,19 @@ function OurFounder() {
 
             {/* Description */}
             <p className="text-xl leading-relaxed font-manrope">
-              Nancy Varallo launched her court reporting career in 1979 and founded The
-Varallo Group in 2001, combining decades of expertise with a bold vision for better,
-
-smarter legal support. With a family name rooted in court reporting since 1937, Nancy
+              {para1 ? para1 : `Nancy Varallo launched her court reporting career in 1979 and founded The
+Varallo Group in 2001, combining decades of expertise with a bold vision for better,smarter legal support. With a family name rooted in court reporting since 1937, Nancy
 carries that legacy forward through her unwavering commitment to quality, service, and
-innovation.
+innovation.`}
             </p>
+            <br />
             <p className="text-xl leading-relaxed font-manrope">
-             
-From serving as President of the National Court Reporters Association to co-founding
+              {para2 ? para2 : `From serving as President of the National Court Reporters Association to co-founding
 the Project to Advance Stenographic Reporting (Project Steno), Nancy has been a
 powerful advocate for the profession, mentoring students, creating industry programs,
 and even overseeing high-profile cases at Guantanamo Bay. Known affectionately as
 the “Fearless Leader” by her team, she brings heart, leadership, and family-first values
-to every part of The Varallo Group.
+to every part of The Varallo Group.`}
             </p>
           </motion.div>
         </div>

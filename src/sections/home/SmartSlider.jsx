@@ -86,6 +86,7 @@ function PrevArrow(props) {
 export default function SmartSlider({data}) {
     if (!data) return null;
     console.log("SmartSlider data:", data);
+    const { title, paragraph1, paragraph2, image,  cards, button } = data;
   const useLo = useNavigate()
   const settings = {
     dots: false,
@@ -145,12 +146,12 @@ export default function SmartSlider({data}) {
               viewport={{ once: true }}
             >
               <h2 className="text-h2 font-medium leading-tight mb-4">
-                {data.title}
+                {title ? title : "Smart Support Services Tailored for Your Success"}
               </h2>
 
               <div className="flex items-center gap-2 mb-8">
                 <Button
-                  text="Let's Get Started"
+                  text={button ? button.label : "Let's Get Started"}
                   color={"text-white"}
                   arrowClass={"sd"}
                   
@@ -165,8 +166,9 @@ export default function SmartSlider({data}) {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-           Our team is the heart of The Varallo Group. They bring dedication, professionalism, and integrity to everything they do. I’m constantly inspired by their commitment to our clients and to each other. It's a privilege to work alongside such talented people who take real pride in delivering excellence every single day.
+              {paragraph1 ? paragraph1 : `Our team is the heart of The Varallo Group. They bring dedication, professionalism, and integrity to everything they do. I’m constantly inspired by their commitment to our clients and to each other. It's a privilege to work alongside such talented people who take real pride in delivering excellence every single day.`}
             </motion.p>
+            <br />
             <motion.p
               className="text-white font-manrope text-xl lg:max-w-[500px]"
               initial={{ opacity: 0, y: 30 }}
@@ -174,7 +176,7 @@ export default function SmartSlider({data}) {
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-             At The Varallo Group, our services are built to simplify, strengthen, and scale your operations. Whether you're a court reporting firm, a professional organization, or an individual, our expertise meets your needs right where you are and right when you need it.
+              {paragraph2 ? paragraph2 : `At The Varallo Group, our services are built to simplify, strengthen, and scale your operations. Whether you're a court reporting firm, a professional organization, or an individual, our expertise meets your needs right where you are and right when you need it.`}
             </motion.p>
           </motion.div>
 
@@ -187,7 +189,7 @@ export default function SmartSlider({data}) {
           >
             <div className="relative">
               <Slider {...settings}>
-                {smartData.map((item, i) => (
+                {cards.map((item, i) => (
                   <div key={i}  className="px-4">
                     <motion.div
                       className="relative rounded-xl overflow-hidden cursor-pointer"
@@ -198,8 +200,8 @@ export default function SmartSlider({data}) {
                       onClick={() => useLo(item.link)}
                     >
                       <img
-                        src={item.image}
-                        alt={item.title}
+                        src={item.image['url']}
+                        alt={item.image['alt'] }
                         className="w-full rounded-[30px]"
                       />
                       <div className="absolute top-0 left-0 w-full h-full flex items-end justify-start p-4">

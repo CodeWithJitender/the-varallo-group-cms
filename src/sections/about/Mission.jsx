@@ -2,7 +2,9 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaUser, FaSmile, FaClock } from "react-icons/fa";
 
-const Mission = () => {
+const Mission = ({ data }) => {
+  if (!data) return null;
+  const { statement } = data;
   return (
     <section className="">
       <div className="container-fluid ">
@@ -13,10 +15,8 @@ const Mission = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-         Our goal is to serve as a trusted partner, delivering expert services
-as an extension of your team. We make your operations simpler,
-your results stronger, and give you more time to focus on what truly
-matters to you.
+          {statement ? statement : " Our goal is to serve as a trusted partner, delivering expert services as an extension of your team. We make your operations simpler, your results stronger, and give you more time to focus on what truly matters to you."}
+        
         {/*  Our mission is to deliver expert court reporting,
          <img src="m-1.png" alt="" className="mx-2 inline w-6 md:w-4 lg:w-10" />
          

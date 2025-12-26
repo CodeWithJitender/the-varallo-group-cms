@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const Vision = () => {
+const Vision = ({ data }) => {
   const visionPoints = [
     {
       img: "/v-1.png",
@@ -24,7 +24,8 @@ const Vision = () => {
       desc: "Helping the court reporting community thrive.",
     },
   ];
-
+  if (!data) return null;
+  const { heading, image, para1, para2 } = data;
   return (
     <section className="bg-gradient-to-br from-sky-500 to-sky-600 py-16 relative">
       <div className="image-bottom absolute left-0  top-0 w-32 md:w-60 h-32 md:h-60">
@@ -49,7 +50,7 @@ const Vision = () => {
             viewport={{ once: true }}
             className="text-h2 mb-5"
           >
-          Shaping the Future
+          {heading ? heading : "Shaping the Future"}
           </motion.h2>
 
           <motion.p
@@ -59,7 +60,7 @@ const Vision = () => {
             viewport={{ once: true }}
             className="mb-5 leading-relaxed font-manrope text-xl"
           >
-          We strive to be the trusted partner powering the court reporting community with an expert team and scalable support. 
+         {para1 ? para1 : " We strive to be the trusted partner powering the court reporting community with an expert team and scalable support."} 
 
 
           </motion.p>
@@ -70,7 +71,7 @@ const Vision = () => {
             viewport={{ once: true }}
             className="mb-5 leading-relaxed font-manrope text-xl"
           >
-         We’re building a future where every firm, big or small, has access to proven solutions backed by experience.  Through smart tech and passionate people, we’re supporting the industry, one partnership at a time. 
+          {para2 ? para2 : "We’re building a future where every firm, big or small, has access to proven solutions backed by experience.  Through smart tech and passionate people, we’re supporting the industry, one partnership at a time."} 
 
           </motion.p>
 {/* 
@@ -113,8 +114,8 @@ const Vision = () => {
             initial={{ scale: 0.9 }}
             whileInView={{ scale: 1 }}
             transition={{ type: "tween", duration: 1.5 }}
-            src="./vision.png" // Replace with your actual image path
-            alt="Professional"
+            src={image ? image.url : "./vision.png"} // Replace with your actual image path
+            alt={image ? image.alt : "Professional"}
             className="w-full"
           />
         </motion.div>

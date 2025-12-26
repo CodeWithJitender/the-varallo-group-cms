@@ -3,25 +3,20 @@ import Sidebar from "../components/Sidebar";
 import DynamicEditor from "../components/DynamicEditor";
 
 const Dashboard = () => {
-  // Persistence Logic: Load from localStorage on init
   const [cmsData, setCmsData] = useState({});
-  const [activePage, setActivePage] = useState(() => localStorage.getItem("activePage") || "home");
-  const [activeId, setActiveId] = useState(() => localStorage.getItem("activeId") || "");
+  const [activePage, setActivePage] = useState("home");
+  const [activeId, setActiveId] = useState("");
   const [loading, setLoading] = useState(true);
 
   const BASE_URL = "http://localhost:3000/api/pages";
+
+  // Manifest of your required nested endpoints
   const PAGE_PATHS = [
     "home", "about", "services", "contact",
     "services/tvg-management", "services/tvg-stream",
     "services/tvg-books", "services/tvg-connect",
     "services/tvg-verify", "services/tvg-reporting"
   ];
-
-  // Sync state to localStorage
-  useEffect(() => {
-    localStorage.setItem("activePage", activePage);
-    localStorage.setItem("activeId", activeId);
-  }, [activePage, activeId]);
 
   const unboxData = (data) => {
     if (typeof data === "string") {
@@ -71,34 +66,70 @@ const Dashboard = () => {
     init();
   }, []);
 
-  const handleUpdateSection = async (updatedData) => {
-    const formData = new FormData();
-    const { id, imageFile, ...content } = updatedData;
+  useEffect(() => {
+    if (cmsData[activePage]?.length > 0) setActiveId(cmsData[activePage][0].id);
+    else setActiveId("");
+  }, [activePage, cmsData]);
 
-    // Send the text content as a string
-    formData.append("content", JSON.stringify(content));
-    
-    // Send the file if it exists (Key must match backend Multer config)
-    if (imageFile) {
-      formData.append("image", imageFile); 
-    }
-
-    try {
-      const res = await fetch(`${BASE_URL}/sections/${activePage}/${id}`, {
-        method: "PATCH",
-        body: formData, // Browser automatically sets boundary for FormData
+  /**
+   * FIX FOR [object Object]: This function recursively appends data 
+   * to FormData so objects are not corrupted during save.
+   */
+  const flattenContent = (data, formData, parentKey = "") => {
+    if (data && typeof data === 'object' && !(data instanceof File)) {
+      Object.keys(data).forEach(key => {
+        const fullKey = parentKey ? `${parentKey}[${key}]` : key;
+        flattenContent(data[key], formData, fullKey);
       });
-
-      if (res.ok) {
-        alert("Section updated successfully!");
-        await fetchPageData(activePage); 
-      } else {
-        const err = await res.json();
-        alert(`Save failed: ${err.message}`);
-      }
-    } catch (err) { alert("Network Error"); }
+    } else {
+      formData.append(parentKey, data);
+    }
   };
 
+const handleUpdateSection = async (updatedData) => {
+  const formData = new FormData();
+  
+  // Destructure imageFile out so it isn't part of the JSON content
+  const { id, imageFile, ...content } = updatedData;
+
+  // 1. CLEAN CONTENT: Remove any local blob URLs from the JSON
+  // The actual file will be sent separately via the 'image' field.
+  const cleanContent = JSON.parse(JSON.stringify(content));
+  const removeBlobs = (obj) => {
+    for (const key in obj) {
+      if (typeof obj[key] === 'string' && obj[key].startsWith('blob:')) {
+        obj[key] = ""; // Clear the blob preview URL before saving to DB
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        removeBlobs(obj[key]);
+      }
+    }
+  };
+  removeBlobs(cleanContent);
+
+  // 2. PRESERVE STRUCTURE: Send content as a JSON string to avoid [object Object]
+  formData.append("content", JSON.stringify(cleanContent));
+  
+  // 3. ATTACH FILE: Append the actual File object
+  if (imageFile) {
+    formData.append("imageFile", imageFile); 
+  }
+
+  try {
+    // Ensure nested routes like services/tvg-management are handled
+    const res = await fetch(`${BASE_URL}/sections/${activePage}/${id}`, {
+      method: "PATCH",
+      body: formData, 
+    });
+
+    if (res.ok) {
+      alert("Section updated successfully!");
+      await fetchPageData(activePage); // Refresh to replace empty strings with Cloudinary URLs
+    } else {
+      const err = await res.json();
+      alert(`Save failed: ${err.message}`);
+    }
+  } catch (err) { alert("Network Error"); }
+};
   const activeSection = (cmsData[activePage] || []).find(s => s.id === activeId);
 
   return (

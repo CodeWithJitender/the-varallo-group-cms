@@ -63,7 +63,10 @@ function PrevArrow(props) {
   );
 }
 
-const Testimonials = () => {
+const Testimonials = ({ data }) => {
+    // console.log("Testimonial data:", data);
+  if (!data) return null;
+  const { heading, cards } = data;
   const settings = {
     dots: false,
     infinite: true,
@@ -96,14 +99,14 @@ const Testimonials = () => {
     <div className="testimonials bg-white pb-10 relative text-center" id="testimonials">
       <div className="container-fluid">
         <motion.h2
-          className="text-h2 font-medium font-parkinsans  mb-12"
+          className="text-h2 font-medium font-parkinsans  mb-12 max-w-[900px] mx-auto"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-         Why Our Clients Choose Us <br className="hidden md:block" />
-         Again & Again
+          {heading ? heading : ` Why Our Clients Choose Us <br className="hidden md:block" />
+         Again & Again`}
         </motion.h2>
 
         <motion.div
@@ -114,7 +117,7 @@ const Testimonials = () => {
           viewport={{ once: true }}
         >
           <Slider {...settings}>
-            {testimonials.map((item, i) => (
+            {cards.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
@@ -133,7 +136,7 @@ const Testimonials = () => {
                     <div className="text-left">
                       <p className="text-xl font-manrope">{item.name}</p>
                       <p className="text-base font-light font-manrope">
-                        {item.role}
+                        {item.company}
                       </p>
                     </div>
                   </div>
